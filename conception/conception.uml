@@ -1,0 +1,123 @@
+@startuml
+
+
+title Projet SR03 : Application de chat
+
+
+
+class User {
+  - id : long
+  -  firstName : string
+  -  familyName : string
+  - email : string
+  - password : string
+  - isAdmin : boolean
+  - isDeactivated: boolean
+
+  + User()
+  + User(firstName, familyName, email, password : string, 
+  isDeactivated, isAdmin: boolean)
+  + User(id: long,
+  firstName, familyName, email, password : string, 
+  isDeactivated, isAdmin: boolean)
+
+  + getId() : long
+  + setId(id: long) : void
+  + getFirstName() : string
+  + setFirstName(firstName: string) : void
+  + getFamilyName() : string
+  + setFamilyName(familyName: string) : void
+  + getPassword() : string
+  + setPassword(password: string) : void
+  + getEmail() : string
+  + setEmail(email! string) : void
+  + getIsAdmin() : boolean
+  + setIsAdmin(isAdmin: boolean) : void
+  + getIsDeactivated() : boolean
+  + setIsDeactivated(isDeactivated: boolean) : void
+  
+  }
+  
+class Chat {
+  - id: long
+  - title: string
+  - description: string
+  - date: LocalDateTime
+  - duration : int
+  - ownerId: long
+  
+  + Chat()
+  + Chat(id : long)
+  + getId() : long
+  + setId(id: long) : void
+  + getTitle() : string
+  + setTitle(title: string) : void
+  + getDescription() : string
+  + setDescrion(description : string): void
+  + getDate() : LocalDateTime
+  + setDate(date: LocalDateTime) : void
+  + getDuration : int
+  + setDuration(duration : int) : void
+  + getOwnerId() : long
+  + setOwnerId( ownerId : void) : void
+}
+
+class Invitation {
+  - chatId : long
+  - userId : long
+  
+  + Invitation()
+  + Invitation(chatId, userId : long)
+  
+  + getChatId() : long
+  + setChatId(chatId : long) : void
+  + getUserId() : long
+  + setUserId(userId : long) : void
+
+}
+
+class Attempt{
+  - userId : long
+  - nbAttempt : long
+  
+  + Attempt()
+  + Attempt(userId, nbAttempt : long)
+  + getUserId() : long
+  + setUserId(userId : long) : void
+  + getNbAttempt() : long
+  + setNbAttempt(nbAttempt : long) : void
+}
+
+
+
+class WebSocket <<Singleton>>{
+  - joueurs : vector<Joueur>
+  - nbTuiles : unsigned int
+  - tuiles : vector<Tuile*>
+  - tuiles_r : vector<Tuile*>
+  - extensionRiviere : bool
+  
+  -Partie()
+  -~Partie()
+  - operator=( p : const Partie&) : Partie& 
+  
+  -$ handler : Handler
+  
+  + getNbTuiles() const : unsigned int
+  + getNbTuilesR() const : unsigned int
+  + getNbJoueur() const : unsigned i
+
+
+
+
+}
+
+
+
+Chat "*" --* "1" User 
+Invitation "*"--*"1" User 
+Invitation "*"--*"1" Chat
+
+
+
+@enduml
