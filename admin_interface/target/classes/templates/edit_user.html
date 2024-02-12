@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Interface Admin</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+        <link href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="/css/admin.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+        <script src="/js/password.js"></script>
+        <script th:inline="javascript">
+            $(document).ready(function() {
+                if([[${emailExists}]] != null && [[${emailExists}]]){ //Si l'adresse email est prise
+
+                    alert("ERREUR : adresse mail déjà utilisée par un autre compte")
+                }
+
+            } );
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Interface Administrateur :<br>Accueil</h1>
+            </header>
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 d-flex flex-row justify-content-around">
+                            <li class="nav-item me-2">
+                                <a class="nav-link active" aria-current="page" th:href="@{/admin/users}">Accueil</a>
+                            </li>
+                            <li class="nav-item me-2">
+                                <a class="nav-link" aria-current="page" th:href="@{/admin/add_user}" >Nouvel utilisateur</a>
+                            </li>
+                            <li class="nav-item">
+                                    <a class="nav-link" aria-current="page" th:href="@{/admin/deactivated_users}">Utilisateurs désactivés</a>
+                                </li>
+                        </ul>
+                    </div>
+            </nav>
+            <main class="d-flex justify-content-between">
+                <aside class="d-flex flex-column justify-content-between w-25 p-4">
+                    <img style="width: 50px; align-self: center" src="/assets/icons/profile_picture.svg" alt="Profile picture">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Prénom : </span>
+                        <span th:text="${firstName}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Nom : </span>
+                        <span th:text="${familyName}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Admin : </span>
+                        <div th:if="${isAdmin}">
+                            Oui
+                        </div>
+                        <div th:unless="${isAdmin}">
+                            Non .
+                        </div>
+                    </div>
+                </aside>
+                <div class="w-100">
+                    <section class="d-flex flex-column rounded-lg pl-3 pr-3 ">
+                        <div class="text-xl-center text-center mb-4">Modifier l'utilisateur</div>
+                        <div class="d-flex flex-column bd-highlight">
+                            <form method="post" th:object="${user}" th:action="@{/user/__${user.id}__}"  onsubmit="return valid();">
+                                <div class="mb-3">
+                                    <label for="firstName" class="form-label">Prénom</label>
+                                    <input type="text" th:field="*{firstName}" class="form-control" id="firstName" name="firstName" placeholder="Saisir votre prénom" minlength="2" maxlength="30" required th:value="*{firstName}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="familyName" class="form-label">Nom</label>
+                                    <input type="text" th:field="*{familyName}" class="form-control" id="familyName" name="familyName" placeholder="Saisir votre nom" minlength="2" maxlength="30" required th:value="*{familyName}">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" th:field="*{email}" class="form-control" id="email" name="email" placeholder="Saisir votre email" minlength="5" maxlength="50" required th:value="*{email}">
+                                </div>
+                                <div>
+                                    <label for="password" class="form-label">Mot de passe</label>
+                                    <input type="input" th:field="*{password}" class="form-control" id="password" name="password"  placeholder="Saisir votre mot de passe" minlength="8" maxlength="50" required th:value="*{password}">                                    <a class="text-primary ms-1" onclick="generatePassword()">Générer un mot de passe</a>
+                                </div>
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div class="me-2">
+                                        <label for="admin"> Admin </label> <input type="radio" th:field="*{isAdmin}" id="admin" value="true" th:checked="*{isAdmin}" />
+                                    </div>
+                                    <div>
+                                        <label for="other"> Autre </label> <input type="radio" th:field="*{isAdmin}" id="other" value="false"  th:checked="*{!isAdmin}" />
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div class="me-2">
+                                        <label for="activated"> Activé </label> <input type="radio" th:field="*{isDeactivated}" value="false"  id="activated"  th:checked="*{!isDeactivated}" />
+                                    </div>
+                                    <div>
+                                        <label for="deactivated"> Désactivé </label> <input type="radio" th:field="*{isDeactivated}" id="deactivated" value="true"  th:checked="*{isDeactivated}" />
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-center">
+                                    <button class="align-middle btn btn-success" type="submit">Valider</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                    <section class="d-flex flex-column delete_card rounded-lg pl-3 pr-3 ">
+                        <div class="text-xl-center text-center mb-4">Supprimer l'utilisateur</div>
+                        <div class="d-flex flex-column bd-highlight">
+                            <form th:method="DELETE" th:action="@{/user/__${user.id}__}">
+                                <div class="d-flex justify-content-center">
+                                    <button class="align-middle btn btn-success" type="submit">Supprimer</button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </div>
+            </main>
+
+        <footer>
+            <p>Hugo Milair - <a href="mailto:hugo.milair@etu.utc.fr">hugo.milair@etu.utc.fr</a>
+            </p>
+        </footer>
+        </div>
+    </body>
+</html>

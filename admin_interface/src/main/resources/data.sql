@@ -1,0 +1,11 @@
+INSERT INTO users ( firstname, familyname, email, password, isadmin, isdeactivated) VALUES ( 'John', 'BOB', 'jb@test.com', 'jbSr03Test*', 1, false);
+INSERT INTO users ( firstname, familyname, email, password, isadmin, isdeactivated) VALUES ( 'Paul', 'FIOUL', 'pf@test.com', 'pfSr03Test*', 0, true);
+INSERT INTO users ( firstname, familyname, email, password, isadmin, isdeactivated) VALUES ( 'Michal', 'POULPE', 'mp@test.com', 'mpSr03Test*', 0, false);
+INSERT INTO chats (title, description, date, duration, ownerid) VALUES ('Chat 1', 'First chat', '2024-01-01 00:00:00', 45, 2);
+INSERT INTO chats (title, description, date, duration, ownerid) VALUES ('Chat 2', 'Second chat', '2024-02-02 20:00:00', 60, 2);
+INSERT INTO chats (title, description, date, duration, ownerid) VALUES ('Chat 3', 'Third chat', '2024-03-02 11:45:00', 60, 2);
+INSERT INTO chats (title, description, date, duration, ownerid) VALUES ('Chat 4', 'Fourth chat', '2024-03-02 11:45:00', 60, 3);
+INSERT INTO chatuser (chatid, userid) VALUES (1, 3);
+INSERT INTO chatuser (chatid, userid) VALUES (2, 3);
+INSERT INTO chatuser (chatid, userid) VALUES (3, 3);
+INSERT INTO chatuser (chatid, userid) VALUES (4, 5);

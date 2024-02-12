@@ -1,0 +1,196 @@
+html{
+    height: 100%;
+    width: 100%;
+
+}
+
+body{
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #E1FFE4
+}
+
+
+/***********************************************/
+/* LAYOUT */
+/***********************************************/
+
+header{
+    text-align: end;
+    height: 5%;
+    background-color: #B7D0F9;
+    color: black;
+    padding-right: 2rem;
+}
+
+footer {
+    height: 5%;
+    background-color: #184e5b;
+    color: #fff;
+    text-align: end;
+}
+
+nav{
+    height: 8%;
+    background-color: #B7D0F9;
+}
+
+.content{
+    display: flex;
+    height: 87%;
+    width: 100%;
+}
+
+aside{
+    width: 20%;
+    background-color: #B7D0F9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+main{
+    width: 80%;
+    height: 85%;
+    background-color: #E1FFE4;
+    margin-bottom: 2rem;
+
+}
+
+/***********************************************/
+/* BOOTSTRAP OVERRIDE */
+/***********************************************/
+.navbar-brand, .nav-link {
+    color: #fff;
+}
+
+/***********************************************/
+/* Custom classes */
+/***********************************************/
+.back {
+    display: flex;
+    margin-left: 1rem;
+    color: cornflowerblue;
+    align-items: center;
+    cursor:pointer;
+}
+
+.chat-card-white{
+    display: flex;
+    background-color: white;
+    margin: 1rem;
+    width: 75%;
+    padding: 0.5rem;
+    justify-content: space-between;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.chat-card-grey{
+    display: flex;
+    background-color: lightgrey;
+    margin: 1rem;
+    width: 75%;
+    padding: 0.5rem;
+    justify-content: space-between;
+    border-radius: 5px;
+}
+
+.arrowSvg{
+    width: 1rem;
+    height: 1rem;
+}
+.deleteSvg{
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+}
+
+.dotSvg{
+    width: 0.5rem;
+    height: 0.5rem;
+}
+
+.logoutSvg{
+    width: 1rem;
+    height: 1rem;
+}
+
+.validation-card{
+    background-color: lightgreen;
+    text-align: center;
+    padding: 0.5rem;
+    justify-content: space-between;
+    border-radius: 5px;
+    color: green;
+}
+.error-card{
+    background-color: red;
+    text-align: center;
+    padding: 0.5rem;
+    justify-content: space-between;
+    border-radius: 5px;
+    color: white;
+}
+
+.message-received-card{
+    border-radius: 5px;
+    background-color: white;
+    width: 25%;
+}
+
+.message-sent-card{
+    border-radius: 5px;
+    width: 25%;
+    color: white;
+}
+
+.form-card {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    width: 60%;
+    border-radius: 30px;
+    padding: 2rem;
+}
+.edit-chat-form-card {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    border-radius: 30px;
+    padding: 2rem;
+    width: 50%;
+}
+
+.generate-link {
+    color: blue;
+    cursor:pointer;
+}
+
+.suppress-card{
+    display: flex;
+    flex-direction: column;
+    align-self: end;
+    border-radius: 30px;
+    padding: 2rem;
+    background-color: white;
+    width: 25%;
+}
+
+.participant-suppress-card{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    border: #282c34;
+    border-radius: 2px;
+    align-items: center;
+}
+
+.logout {
+    display: flex;
+    margin-right: 1rem;
+    cursor: pointer;
+    align-items: center;
+}

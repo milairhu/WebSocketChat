@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Interface Admin</title>
+        <!-- Bootstrap 5  Autre framework css interessant Metro: https://metroui.org.ua/intro.html -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+        <link href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+        <link rel="stylesheet" href="/css/admin.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+        <script th:inline="javascript">
+        $(document).ready(function() {
+            if([[${edited}]] != null && [[${edited}]]){ //Si un utilisateur vient d'être modifié
+
+                const x = document.getElementById("snackbar");
+                // Ajoute "show" à la class de la snckbar
+                x.className = "show";
+                // On l'affiche 3 secondes
+                setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+            }
+
+        } );
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Interface Administrateur :<br>Accueil</h1>
+            </header>
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 d-flex flex-row justify-content-around">
+                            <li class="nav-item me-2">
+                                <a class="nav-link active" aria-current="page" th:href="@{/admin/users}">Accueil</a>
+                            </li>
+                            <li class="nav-item me-2">
+                                <a class="nav-link" aria-current="page" th:href="@{/admin/add_user}" >Nouvel utilisateur</a>
+                            </li>
+                            <li class="nav-item">
+                                    <a class="nav-link" aria-current="page" th:href="@{/admin/deactivated_users}">Utilisateurs désactivés</a>
+                                </li>
+                        </ul>
+                    </div>
+            </nav>
+            <div id="snackbar">Modification effectuée avec succès!</div>
+            <main class="d-flex justify-content-between">
+                <aside class="d-flex flex-column justify-content-between p-4 w-25">
+                    <img style="width: 50px; align-self: center" src="/assets/icons/profile_picture.svg" alt="Profile picture">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Prénom : </span>
+                        <span th:text="${firstName}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Nom : </span>
+                        <span th:text="${familyName}"></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Admin : </span>
+                        <div th:if="${isAdmin}">
+                            Oui
+                        </div>
+                        <div th:unless="${isAdmin}">
+                            Non .
+                        </div>
+                    </div>
+                </aside>
+                <section class="w-100 my-1">
+                    <div>
+                        <form method="POST" th:action="@{/admin/users?page=0&sort=__${sorter}__}" >
+                            <div class="d-flex justify-content-center">
+                                <input type="text" id="searchbar" name="filter" class="form-control" placeholder="Recherche par nom, prénom d'adresse mail" maxlength="50" th:value="${filter}">
+                                <button class="align-middle btn btn-success" type="submit">Rechercher</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="row">
+                        <table id="example" class="table table-striped w-100" >
+                            <thead>
+                            <tr>
+                                <th><a th:href="@{/admin/users/?page=0&sort=firstName&filter=__${filter}__}" style="color: unset; text-decoration: unset">Prénom</a></th>
+                                <th><a th:href="@{/admin/users/?page=0&sort=familyName&filter=__${filter}__}" style="color: unset; text-decoration: unset">Nom</a></th>
+                                <th><a th:href="@{/admin/users/?page=0&sort=email&filter=__${filter}__}" style="color: unset; text-decoration: unset">Email</a></th>
+                                <th><a th:href="@{/admin/users/?page=0&sort=isAdmin&filter=__${filter}__}" style="color: unset; text-decoration: unset">Admin.</a></th>
+                                <th><a th:href="@{/admin/users/?page=0&sort=isDeactivated&filter=__${filter}__}" style="color: unset; text-decoration: unset">Désac.</a></th>
+                                <th>Modifier</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="user : ${users}">
+                                <td><span th:text="${user.firstName}"></span></td>
+                                <td><span th:text="${user.familyName}"></span></td>
+                                <td><span th:text="${user.email}"></span></td>
+                                <td><span th:text="${user.isAdmin}"></span></td>
+                                <td><span th:text="${user.isDeactivated}"></span></td>
+                                <td><a th:href="@{/admin/edit_user/__${user.id}__}">Modifier</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a th:if="${ sorter } != null" th:class="${page == 0 ? 'invisible' : 'visible'}" th:href="@{/admin/users/?page=__${page - 1}__&sort=__${sorter}__&filter=__${filter}__}">Précédent</a>
+                        <a th:unless="${ sorter } != null" th:class="${page == 0 ? 'invisible' : 'visible'}" th:href="@{/admin/users/?page=__${page - 1}__&filter=__${filter}__}">Précédent</a>
+
+                        <a th:if="${ sorter } != null" th:class="${page >=  maxPage ? 'invisible' : 'visible'}" th:href="@{/admin/users/?page=__${page + 1}__&sort=__${sorter}__&filter=__${filter}__}">Suivant</a>
+                        <a th:unless="${ sorter } != null" th:class="${page >=  maxPage ? 'invisible' : 'visible'}" th:href="@{/admin/users/?page=__${page + 1}__&filter=__${filter}__}">Suivant</a>
+                    </div>
+                </section>
+            </main>
+            <footer>
+                <p>Hugo Milair - <a href="mailto:hugo.milair@etu.utc.fr">hugo.milair@etu.utc.fr</a>
+                </p>
+            </footer>
+        </div>
+    </body>
+</html>
