@@ -37,73 +37,69 @@ public class RestUserController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-
     @GetMapping()
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Retourne la liste des utilisateurs non admin (pouvant participer à des chats)
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // Enables access from multiple applications
+    // Returns the list of non-admin users
     public List<User> getNonAdminUsers() {
         System.out.println("Get /users");
 
         try {
             List<User> users = userRepository.findByIsAdmin(false);
             return users;
-        }
-        catch (Error e) {
+        } catch (Error e) {
             System.out.println("ERROR  : GET /users : " + e);
-            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Requête non aboutie");
+            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Request failed");
         }
     }
 
     @GetMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Retourne les infos sur l'utilisateur correspondant à l'id
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    // Returns a user by its id
     public User getUser(@PathVariable(value = "id") long id) {
-        System.out.println("Get /users/"+id);
+        System.out.println("Get /users/" + id);
 
         Optional<User> user = userRepository.findById(id);
-        if(user != null && user.isPresent()){
+        if (user != null && user.isPresent()) {
             return user.get();
-        }
-        else{
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id ne correspond à aucun utilisateur");
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user corresponds to this id");
         }
     }
 
-
-
     @GetMapping("/{id}/ownchats")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Obtenir les chats dont l'utilisateur est propriétaire
-    public List<Chat> getOwnChats(@PathVariable(value = "id") long id){
-        System.out.println("Get /users/"+id+"/ownchats");
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    // Returns the chats owned by a user
+    public List<Chat> getOwnChats(@PathVariable(value = "id") long id) {
+        System.out.println("Get /users/" + id + "/ownchats");
         Optional<User> user = userRepository.findById(id);
-        if(user == null || !user.isPresent()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id ne correspond à aucun utilisateur");
+        if (user == null || !user.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user corresponds to this id");
         }
         List<Chat> chats = chatRepository.findByOwnerId(id);
         return chats;
     }
 
     @GetMapping("/{id}/invitations")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Obtenir les chats dont l'utilisateur est invité
-    public List<Chat> getChatsInvited(@PathVariable(value = "id") long id){
-        System.out.println("Get /users/"+id+"/invitations");
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    // Returns the chats to which a user is invited
+    public List<Chat> getChatsInvited(@PathVariable(value = "id") long id) {
+        System.out.println("Get /users/" + id + "/invitations");
         Optional<User> user = userRepository.findById(id);
-        if(user == null || !user.isPresent()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id ne correspond à aucun utilisateur");
+        if (user == null || !user.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user corresponds to this id");
         }
         List<Chat> chats = userRepository.findUserInvitations(id);
         return chats;
     }
+
     @GetMapping("/{id}/chats")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Obtenir les chats dont l'utilisateur est propriétaire ou invité
-    public List<Chat> getUserChats(@PathVariable(value = "id") long id){
-        System.out.println("Get /users/"+id+"/chats");
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    // Returns the chats of a user
+    public List<Chat> getUserChats(@PathVariable(value = "id") long id) {
+        System.out.println("Get /users/" + id + "/chats");
         Optional<User> user = userRepository.findById(id);
-        if(user == null || !user.isPresent()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id ne correspond à aucun utilisateur");
+        if (user == null || !user.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user corresponds to this id");
         }
         List<Chat> myChats = chatRepository.findByOwnerId(id);
         List<Chat> invitedChats = userRepository.findUserInvitations(id);
@@ -113,111 +109,117 @@ public class RestUserController {
     }
 
     @PutMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Met à jour l'utilisateur et le renvoie
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    // Updates a user
     public User updateUser(@PathVariable(value = "id") long id, @RequestBody @Valid User user) {
 
-            System.out.println("Put /users/"+id);
+        System.out.println("Put /users/" + id);
 
-            Optional<User> userToEdit = userRepository.findById(id);
-            if(userToEdit.isPresent()){
-                //Si l'utilisateur à modifier existe
+        Optional<User> userToEdit = userRepository.findById(id);
+        if (userToEdit.isPresent()) {
+            // If the user to edit exists
 
-                User emailMatchingUser = userRepository.findByEmail(user.getEmail());
-                if (emailMatchingUser != null && emailMatchingUser.getId() != userToEdit.get().getId()) {
-                    //Si un utilisateur existe déjà avec cette adresse mail, et que ce n'est pas moi on interdit la modification
-                    throw new ResponseStatusException(HttpStatus.CONFLICT, "Un utilisateur existe déjà avec cette adresse email");
-                }
-                else{
-                    user.setId(id);
-                    userRepository.saveAndFlush(user);
-                    return user;
-                }
+            User emailMatchingUser = userRepository.findByEmail(user.getEmail());
+            if (emailMatchingUser != null && emailMatchingUser.getId() != userToEdit.get().getId()) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Error: an user already has this email");
+            } else {
+                user.setId(id);
+                userRepository.saveAndFlush(user);
+                return user;
             }
-            else{
-                //Si l'utilisateur à modifier n'existe pas
-                throw  new ResponseStatusException(HttpStatus.NOT_FOUND, "Pas d'utilisateur correspondant à cet Id");
-            }
+        } else {
+            // Si l'utilisateur à modifier n'existe pas
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user corresponds to this id");
+        }
     }
 
     @PostMapping("/login")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Renvoie un utilisateur si le mot de passe et l'email envoyés dans le corps sont recevables
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    // Returns a user if the email and password match, and creates a token
     public ResponseEntity<User> postLogin(@RequestBody User user) {
         System.out.println("POST users/login");
         User loggedUser = userRepository.findByEmailAndPassword(user.getEmail(), user.getPassword());
 
         if (loggedUser != null) {
-            //Un utilisateur correspond au mdp et à l'email entrés
-            if(loggedUser.getIsDeactivated()){
-                //Si l'utilisateur est désactivé, on ne lui permet pas l'accès au site
-                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "L'utilisateur est désactivé");
+            // if the email and password match
+            if (loggedUser.getIsDeactivated()) {
+                // if the user is deactivated
+                throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "User is deactivated");
             }
 
             Attempt userAttempt = attemptRepository.findByUserId(loggedUser.getId());
             if (userAttempt != null) {
-                //Si l'utilisateur a une entrée dans la table Attempt, on remet son nombre d'essai à 0
+                // if the user has already tried to log in before, we reset the number of
+                // attempts
                 userAttempt.setNbAttempts(0);
                 attemptRepository.saveAndFlush(userAttempt);
             }
-            return ResponseEntity.ok() //Code fournit par G. Quentin
-                    // Ajout de l'entete Access-Control-Expose-Headers pour autoriser le client a lire l'entete Authorization (ignore par defaut si le client utilise CORS - ex : navigateur web)
+            return ResponseEntity.ok() // Code provided by G. Quentin
+                    // Ajout de l'entete Access-Control-Expose-Headers pour autoriser le client a
+                    // lire l'entete Authorization (ignore par defaut si le client utilise CORS - ex
+                    // : navigateur web)
                     .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.AUTHORIZATION)
                     // Ajout de l'entete Authorization avec le token JWT
-                    .header(HttpHeaders.AUTHORIZATION, jwtTokenProvider.createSimpleToken(loggedUser.getEmail(), (loggedUser.getIsAdmin() ? "ADMIN" : "USER")))
+                    .header(HttpHeaders.AUTHORIZATION,
+                            jwtTokenProvider.createSimpleToken(loggedUser.getEmail(),
+                                    (loggedUser.getIsAdmin() ? "ADMIN" : "USER")))
                     // Ajout de l'utilisateur dans le body
                     .body(loggedUser);
         } else {
-            //Le mdp entré ou l'email entrée est faux
+            // Password or email do not match
             User emailMatchingUser = userRepository.findByEmail(user.getEmail());
 
             if (emailMatchingUser != null) {
-                //Si un utilisateur a bien cet email, au bout de 5 tentatives, on désactive le compte
+                // If the email exists
                 Attempt userAttempt = attemptRepository.findByUserId(emailMatchingUser.getId());
 
                 if (userAttempt != null) {
-                    //Si l'entrée existait déjà
+                    // if the user has already tried to log in before, we increment the number of
                     long nbAttempts = userAttempt.getNbAttempts();
                     userAttempt.setNbAttempts(nbAttempts + 1);
-                    attemptRepository.saveAndFlush(userAttempt); //Mis à jour dans la base du nombre de tentatives
+                    attemptRepository.saveAndFlush(userAttempt);
 
                     if (userAttempt.getNbAttempts() == 5) {
-                        //Si cela fait 5 fois que l'utilisateur essaie un mdp, on désactive son compte
+                        // if the user has tried to log in 5 times, we deactivate the account
                         emailMatchingUser.setIsDeactivated(true);
                         userRepository.saveAndFlush(emailMatchingUser);
 
                     }
                     if (userAttempt.getNbAttempts() >= 5) {
-                        //On affiche que l'utilisateur a été désactivé
-                        throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "L'utilisateur est désactivé");
+                        // display a message if the user has tried to log in 5 times
+                        throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED,
+                                "The user has been deactivated");
                     }
                 } else {
-                    //Si l'entrée dans Attempts n'existe pas encore, on la crée
+                    // If the user has never tried to log in before, we create an attempt
                     Attempt attempt = new Attempt(emailMatchingUser.getId(), 1);
                     attemptRepository.saveAndFlush(attempt);
                 }
             }
-            //L'email entré ne correspond pas
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun utilisateur ne correspond à ce couple email / mot de passe");
+            // If the email does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "No user corresponds to this couple email/password");
         }
     }
 
     @PostMapping("/login/forgotten")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Envoie un mail contenant le mot de passe de l'utilisateur
-    public void sendForgottenPassword(@RequestBody User userReceived){
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    // Sends an email with the password of the user
+    public void sendForgottenPassword(@RequestBody User userReceived) {
         System.out.println("Post users/login/forgotten");
 
-        //On vérifie que l'adresse email correspond à un User
+        // Check if the user exists
         User user = userRepository.findByEmail(userReceived.getEmail());
-        if(user == null){
-            //si aucun utilisateur ne correspond
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun utilisateur ne correspond à cet email");
+        if (user == null) {
+            // if the user does not exist
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No user corresponds to this email");
         } else {
-            // si un utilisateur existe, on envoie un mail
-            String subject = "Mot de passe Appli de chat";
-            String message = "Bonjour "+ user.getFirstName() +",\nVotre mot de passe est : "+ user.getPassword() +" .\n" +
-                    "Veuillez le modifier dès votre prochaine connection.\nAu plaisir de vous revoir, \nHugo.";
+            // if the user exists we send an email with the password
+            String subject = "Password forgotten";
+            String message = "Hello " + user.getFirstName() + ",\nYour password is: " + user.getPassword()
+                    + " .\n" +
+                    "Please change it at your next connection.\nLooking forward to seeing you again, \nHugo.";
             emailService.sendEmail(userReceived.getEmail(), subject, message);
             return;
 

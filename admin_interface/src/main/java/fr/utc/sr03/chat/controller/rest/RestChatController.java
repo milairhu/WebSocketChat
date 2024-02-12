@@ -24,133 +24,131 @@ public class RestChatController {
     @Autowired
     private InvitationRepository invitationRepository;
 
-
     @GetMapping("/{chatId}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Renvoie les informations sur un chat donné
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // To allow access from multiple applications
+    // Returns information about a given chat
     private Chat getChat(@PathVariable long chatId) {
-        System.out.println("Get /chats/"+chatId);
+        System.out.println("Get /chats/" + chatId);
         Optional<Chat> chat = chatRepository.findById(chatId);
-        if(chat == null || !chat.isPresent()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id ne correspond à aucun chat");
+        if (chat == null || !chat.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id does not correspond to any chat");
         }
         return chat.get();
     }
+
     @GetMapping("/{chatId}/users")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Renvoie la liste des utilisateur (propriétaire + invités) d'un chat
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // To allow access from multiple applications
+    // Returns the list of users (owner + guests) of a chat
     private List<User> getChatUsers(@PathVariable long chatId) {
-        System.out.println("Get /chats/"+chatId+"/users");
+        System.out.println("Get /chats/" + chatId + "/users");
         Optional<Chat> chat = chatRepository.findById(chatId);
-        if(chat == null || !chat.isPresent()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id ne correspond à aucun chat");
+        if (chat == null || !chat.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id does not correspond to any chat");
         }
-        //On cherche le propriétaire du chat
+        // Looking for the owner of the chat
         User owner = chatRepository.findOwner(chatId);
-        //On cherche les invités
+        // Looking for the guests
         List<User> users = chatRepository.findInvitedUsersByChatId(chatId);
 
-        //Fusion des listes:
+        // Merging the lists:
         users.add(owner);
 
         return users;
     }
+
     @GetMapping("/{chatId}/invited")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Renvoie la liste des utilisateurs invités d'un chat
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // To allow access from multiple applications
+    // Returns the list of invited users of a chat
     private List<User> getChatInvited(@PathVariable long chatId) {
-        System.out.println("Get /chats/"+chatId+"/invited");
+        System.out.println("Get /chats/" + chatId + "/invited");
         Optional<Chat> chat = chatRepository.findById(chatId);
-        if(chat == null || !chat.isPresent()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id ne correspond à aucun chat");
+        if (chat == null || !chat.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Id does not correspond to any chat");
         }
-        //On cherche les invités
+        // Looking for the guests
         List<User> users = chatRepository.findInvitedUsersByChatId(chatId);
         return users;
     }
 
     @PostMapping
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Permet la création d'un Chat et le renvoie
-    private Chat createChat( @RequestBody @Valid Chat chat){
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // To allow access from multiple applications
+    // Allows the creation of a Chat and returns it
+    private Chat createChat(@RequestBody @Valid Chat chat) {
         System.out.println("Post /chats");
         Chat existingChat = chatRepository.findByTitle(chat.getTitle());
-        if(existingChat != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT,"Erreur : un chat porte déjà ce nom");
+        if (existingChat != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Error: a chat already has this name");
         }
         try {
             Chat newChat = chatRepository.saveAndFlush(chat);
             System.out.println(newChat);
             return newChat;
-        }
-        catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED,"Erreur lors de la création du Chat");
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Error during the creation of the Chat");
         }
     }
 
     @PostMapping("/{id}/invitations")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Met à jour la table des invitations pour le chat passé en argument
-    private void addInvitations(@PathVariable(value = "id") long chatId,@RequestBody() List<Long> usersId) {
-        System.out.println("Post /chats/"+chatId+"/invitations");
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // To allow access from multiple applications
+    // Updates the invitation table for the chat passed as argument
+    private void addInvitations(@PathVariable(value = "id") long chatId, @RequestBody() List<Long> usersId) {
+        System.out.println("Post /chats/" + chatId + "/invitations");
         Optional<Chat> chatToEdit = chatRepository.findById(chatId);
         if (chatToEdit.isPresent()) {
             usersId.forEach(userId -> {
                 invitationRepository.saveAndFlush(new ChatUser(chatId, userId));
             });
-        }
-        else{
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Pas de chat correspondant à cet Id");
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No chat corresponding to this Id");
         }
     }
 
-
     @PutMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Met à jour les informations d'un chat et le renvoie
-    private Chat editChat(@PathVariable(value = "id") long id,@RequestBody @Valid Chat chat){
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // To allow access from multiple applications
+    // Updates the information of a chat and returns it
+    private Chat editChat(@PathVariable(value = "id") long id, @RequestBody @Valid Chat chat) {
 
-        System.out.println("Put /chats/"+id);
+        System.out.println("Put /chats/" + id);
         Optional<Chat> chatToEdit = chatRepository.findById(id);
-        if(chatToEdit.isPresent()){
+        if (chatToEdit.isPresent()) {
             Chat existingChat = chatRepository.findByTitle(chat.getTitle());
-            if(existingChat != null && existingChat.getId() != id) { //On vérifie que le nom n'est pas déjà pris
-                throw new ResponseStatusException(HttpStatus.CONFLICT,"Erreur : un chat porte déjà ce nom");
+            if (existingChat != null && existingChat.getId() != id) { // We check that the name is not already taken
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Error: a chat already has this name");
             }
             chat.setId(id);
             Chat editedChat = chatRepository.saveAndFlush(chat);
             return editedChat;
-        }
-        else{
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Pas de chat correspondant à cet Id");
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No chat corresponding to this Id");
         }
     }
 
     @DeleteMapping("/{id}")
-    @CrossOrigin(origins = "*", allowedHeaders = "*") //Pour permettre les accès depuis plusieurs applications
-    //Supprime un chat, et les invitations associées
-    private void deleteChat(@PathVariable(value = "id" )long id){
-        System.out.println("Delete /chats/"+id);
+    @CrossOrigin(origins = "*", allowedHeaders = "*") // To allow access from multiple applications
+    // Deletes a chat, and the associated invitations
+    private void deleteChat(@PathVariable(value = "id") long id) {
+        System.out.println("Delete /chats/" + id);
 
         try {
             Optional<Chat> chat = chatRepository.findById(id);
-            if(!chat.isEmpty()){
-                //test validité de la date : on ne supprime que si le chat n'est pas en cours
+            if (!chat.isEmpty()) {
+                // validity test of the date: we only delete if the chat is not in progress
                 LocalDateTime beginDate = chat.get().getDate();
                 LocalDateTime endDate = chat.get().getDate().plusMinutes(chat.get().getDuration());
-                if(LocalDateTime.now().isAfter(endDate)  || LocalDateTime.now().isBefore(beginDate)){
-                    chatRepository.deleteChatUsers(id); //supprime les invitations au chat
-                    chatRepository.deleteById(id); //supprime le chat
+                if (LocalDateTime.now().isAfter(endDate) || LocalDateTime.now().isBefore(beginDate)) {
+                    chatRepository.deleteChatUsers(id); // deletes the chat invitations
+                    chatRepository.deleteById(id); // deletes the chat
                 } else {
-                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Le chat ne peut pas être en cours lors de la suppression");
+                    throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                            "The chat cannot be in progress during deletion");
                 }
             } else {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Aucun chat ne correspond" );
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No chat corresponds");
             }
 
-        } catch (Exception e){
-            System.out.println("ERREUR : "+e);
-            throw  new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Problème lors de suppression" + e);
+        } catch (Exception e) {
+            System.out.println("ERROR : " + e);
+            throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "Problem during deletion" + e);
         }
     }
 

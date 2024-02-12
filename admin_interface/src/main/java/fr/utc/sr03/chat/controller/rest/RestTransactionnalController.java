@@ -12,27 +12,25 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class RestTransactionnalController {
-    // Créé car mettre des méthodes avec @Transactionnal  dans le controller
-    // en annotation fait planter les autres méthodes du controller
+    // Created to handle transactional requests
 
     @Autowired
     private InvitationRepository invitationRepository;
-
 
     @DeleteMapping("/chats/{chatId}/{userId}")
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @Transactional
     public void deleteUserFromChat(@PathVariable(value = "chatId") long chatId,
-                                    @PathVariable(value = "userId") long userId){
-        //Supprime un utilisateur d'un chat
+            @PathVariable(value = "userId") long userId) {
+        // Deletes a user from a chat
         System.out.println("Delete /chats/" + chatId + "/" + userId);
         try {
             invitationRepository.deleteByChatIdAndUserId(chatId, userId);
         } catch (Exception e) {
             System.out.println("ERREUR : " + e);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cet utilisateur n'est pas invité à ce chat");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    "The user is not in the chat");
         }
     }
-
 
 }
