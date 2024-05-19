@@ -6,7 +6,7 @@ Due on 17/06/2023.
 
 Main project of SR03 course at the UTC, consists of implementing a chat room website. The goal is to familiarize with various technologies used in web development.
 
-The work was carried out during Directed Work sessions with the advice and help of Mr. Grégory Quentin. The fundamental principles involved are drawn from the course taught by Mr. Ahmed Lounis.
+The work was carried out during Lab sessions with the advice and help of Mr. Grégory Quentin. The fundamental principles involved are drawn from the course taught by Mr. Ahmed Lounis.
 
 ## Getting started
 
