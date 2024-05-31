@@ -14,7 +14,7 @@ The first step is to launch the admin interface to create users. Go to the *admi
 
 Then, go to *user_interface*, launch with *npm run start* and connect to **localhost:3000**. The user should log in with the credentials created in the admin interface. The user can then create and participate to chats if they are available. The owner of a chat can invite other users to an own chat, as well as modifying the chat. Invited users can only participate in the chat when it is available.
 
-If a users can't find their password, they can reset it by clicking on the "Forgot password" link on the login page. They will receive an email with their password.
+If yhe users can't find their password, they can reset it by clicking on the "Forgot password" link on the login page. They will receive an email with their password.
 
 Moreover, an account is deactivated after a certain amount of failed login attempts. The administrator can reactivate the account.
 
